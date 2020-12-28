@@ -5,6 +5,7 @@
         <DisplayName>HuginnExtension</DisplayName>
         <Description xml:space="preserve">Run command when document is saved.
 </Description>
+        <MoreInfo>https://github.com/rafaelboschini/HuginnExtension</MoreInfo>
         <Icon>Logo .png</Icon>
     </Metadata>
     <Installation>

@@ -1,15 +1,15 @@
-﻿using System;
+﻿using EnvDTE;
+using HuginnExtension.Model;
+using Microsoft;
+using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.Shell;
+using Newtonsoft.Json;
+using System;
+using System.IO;
+using System.Management.Automation;
 using System.Runtime.InteropServices;
 using System.Threading;
-using Microsoft.VisualStudio.Shell;
 using Task = System.Threading.Tasks.Task;
-using EnvDTE;
-using Microsoft.VisualStudio;
-using Microsoft;
-using System.Management.Automation;
-using System.IO;
-using HuginnExtension.Model;
-using Newtonsoft.Json;
 
 namespace HuginnExtension
 {
@@ -26,7 +26,7 @@ namespace HuginnExtension
         private DTE _DTE;
         private DocumentEvents _dteDocumentEvents;
 
-        public const string PackageGuidString = "3f690938-1d0c-47d2-af51-801671a7ca39";        
+        public const string PackageGuidString = "3f690938-1d0c-47d2-af51-801671a7ca39";
         private const string _CONFIGFILENAME = "Huginn-config.json";
 
         #region Events
@@ -96,7 +96,7 @@ namespace HuginnExtension
         private string GetConfigfilePath(string FolderFullPath)
         {
             var arrPath = FolderFullPath.Split('\\');
-            for (var i = arrPath.Length-1; i > 0; i--)
+            for (var i = arrPath.Length - 1; i > 0; i--)
             {
                 var path = "";
                 for (var x = 0; x < i; x++)
