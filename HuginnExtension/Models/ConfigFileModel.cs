@@ -1,4 +1,4 @@
-﻿namespace HuginnExtension.Model
+﻿namespace HuginnExtension.Models
 {
     public class ConfigFileModel
     {

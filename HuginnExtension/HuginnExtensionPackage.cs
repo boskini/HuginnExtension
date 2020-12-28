@@ -1,8 +1,9 @@
 ﻿using EnvDTE;
-using HuginnExtension.Model;
+using HuginnExtension.Models;
 using Microsoft;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using Newtonsoft.Json;
 using System;
 using System.IO;
@@ -20,7 +21,6 @@ namespace HuginnExtension
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string, PackageAutoLoadFlags.BackgroundLoad)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionHasMultipleProjects_string, PackageAutoLoadFlags.BackgroundLoad)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionHasSingleProject_string, PackageAutoLoadFlags.BackgroundLoad)]
-    [ProvideMenuResource("Menus.ctmenu", 1)]
     public sealed class HuginnExtensionPackage : AsyncPackage
     {
         private DTE _DTE;
@@ -28,18 +28,30 @@ namespace HuginnExtension
 
         public const string PackageGuidString = "3f690938-1d0c-47d2-af51-801671a7ca39";
         private const string _CONFIGFILENAME = "Huginn-config.json";
+        private string GetPackageName() => nameof(HuginnExtensionPackage);
 
         #region Events
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
-            await this.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
-            await Command.InitializeAsync(this);
+            //GetLogger().LogInformation(GetPackageName(), "Initialising...");
 
-            _DTE = (DTE)await GetServiceAsync(typeof(DTE));
-            Assumes.Present(_DTE);
+            try
+            {
+                await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
 
-            _dteDocumentEvents = _DTE.Events.DocumentEvents;
-            _dteDocumentEvents.DocumentSaved += OnDocumentSaved;
+                _DTE = (DTE)await GetServiceAsync(typeof(DTE));
+                Assumes.Present(_DTE);
+
+                _dteDocumentEvents = _DTE.Events.DocumentEvents;
+                _dteDocumentEvents.DocumentSaved += OnDocumentSaved;
+
+                //GetLogger().LogInformation(GetPackageName(), "Initialised.");
+            }
+            catch (Exception exception)
+            {
+                //GetLogger().LogError(GetPackageName(), "Exception during initialisation", exception);
+            }
+
         }
         private void OnDocumentSaved(EnvDTE.Document doc)
         {
@@ -69,7 +81,7 @@ namespace HuginnExtension
             }
             catch (Exception ex)
             {
-                //TODO Implements log
+                //GetLogger().LogInformation(GetPackageName(), ex.Message);
             }
         }
         #endregion
@@ -88,7 +100,7 @@ namespace HuginnExtension
             }
             catch (Exception ex)
             {
-                //TODO Implements log
+                //GetLogger().LogInformation(GetPackageName(), ex.Message);
                 return new ConfigFileModel();
             }
         }
@@ -113,6 +125,12 @@ namespace HuginnExtension
             return "";
         }
         #endregion
+
+        private IVsActivityLog GetLogger()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            return this.GetService(typeof(SVsActivityLog)) as IVsActivityLog ?? new NullLogger();
+        }
     }
 }
 
