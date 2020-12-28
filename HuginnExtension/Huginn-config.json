@@ -1,0 +1,8 @@
+{
+  "items": [
+    {
+      "ext": "cshtml",
+      "command":  "vestcp"
+    }
+  ]
+}
