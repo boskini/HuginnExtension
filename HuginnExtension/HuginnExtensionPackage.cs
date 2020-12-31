@@ -33,23 +33,23 @@ namespace HuginnExtension
         #region Events
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
-            //GetLogger().LogInformation(GetPackageName(), "Initialising...");
+            GetLogger().LogInformation(GetPackageName(), "Initialising...");
 
             try
             {
                 await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
 
-                _DTE = (DTE)await GetServiceAsync(typeof(DTE));
+                _DTE = (DTE)await GetServiceAsync(typeof(DTE)).ConfigureAwait(true);
                 Assumes.Present(_DTE);
 
                 _dteDocumentEvents = _DTE.Events.DocumentEvents;
                 _dteDocumentEvents.DocumentSaved += OnDocumentSaved;
 
-                //GetLogger().LogInformation(GetPackageName(), "Initialised.");
+                GetLogger().LogInformation(GetPackageName(), "Initialised.");
             }
             catch (Exception exception)
             {
-                //GetLogger().LogError(GetPackageName(), "Exception during initialisation", exception);
+                GetLogger().LogError(GetPackageName(), "Exception during initialisation", exception);
             }
 
         }
@@ -61,7 +61,7 @@ namespace HuginnExtension
                 var filename = doc.Name;
 
                 var filepath = GetConfigfilePath(doc.Path); // Find configuration file path
-                if (filepath != "")
+                if (filepath.Length > 0)
                 {
                     var configList = LoadJson(filepath); // Get content of configuration path
 
@@ -81,7 +81,7 @@ namespace HuginnExtension
             }
             catch (Exception ex)
             {
-                //GetLogger().LogInformation(GetPackageName(), ex.Message);
+                GetLogger().LogInformation(GetPackageName(), ex.Message);
             }
         }
         #endregion
@@ -105,7 +105,7 @@ namespace HuginnExtension
             }
         }
 
-        private string GetConfigfilePath(string FolderFullPath)
+        static string GetConfigfilePath(string FolderFullPath)
         {
             var arrPath = FolderFullPath.Split('\\');
             for (var i = arrPath.Length - 1; i > 0; i--)
@@ -128,7 +128,6 @@ namespace HuginnExtension
 
         private IVsActivityLog GetLogger()
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
             return this.GetService(typeof(SVsActivityLog)) as IVsActivityLog ?? new NullLogger();
         }
     }
