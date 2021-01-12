@@ -105,7 +105,7 @@ namespace HuginnExtension
             }
         }
 
-        static string GetConfigfilePath(string FolderFullPath)
+        private string GetConfigfilePath(string FolderFullPath)
         {
             var arrPath = FolderFullPath.Split('\\');
             for (var i = arrPath.Length - 1; i > 0; i--)
